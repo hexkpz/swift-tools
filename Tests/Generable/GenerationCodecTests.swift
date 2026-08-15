@@ -67,11 +67,11 @@ func `nested validation is consistent across schema decoding and encoding`() {
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 
     #expect {
-        _ = try content.decode(OuterValidatedValue.self)
+        _ = try generatedContentDecoder.decode(OuterValidatedValue.self, from: content)
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 
     #expect {
-        _ = try GeneratedContent(value)
+        _ = try generatedContentEncoder.encode(value)
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 }
 
@@ -80,10 +80,10 @@ func `supplied schemas validate root decoding and encoding`() throws {
     let schema = try String.generationSchema.validating(RejectingValidator<String>())
 
     #expect {
-        _ = try GeneratedContent.string("value").decode(String.self, using: schema)
+        _ = try generatedContentDecoder.decode(String.self, from: .string("value"), using: schema)
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 
     #expect {
-        _ = try GeneratedContent("value", using: schema)
+        _ = try generatedContentEncoder.encode("value", using: schema)
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 }

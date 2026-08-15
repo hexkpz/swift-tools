@@ -28,10 +28,13 @@ struct AnyTool<Context: Sendable>: Sendable {
 
         self.declaration = declaration
 
-        self._perform = { arguments, context in
-            let decodedArguments: ToolType.Arguments
+        self._perform = {
+            let arguments: ToolType.Arguments
             do {
-                decodedArguments = try arguments.decode(using: declaration.arguments)
+                let decoder = GeneratedContentDecoder()
+                let schema = declaration.arguments
+
+                arguments = try decoder.decode(ToolType.Arguments.self, from: $0, using: schema)
             } catch let error as CancellationError {
                 throw error
             } catch {
@@ -44,7 +47,7 @@ struct AnyTool<Context: Sendable>: Sendable {
             try Task.checkCancellation()
             let output: ToolType.Output
             do {
-                output = try await tool.perform(with: decodedArguments, in: context)
+                output = try await tool.perform(with: arguments, in: $1)
             } catch {
                 // Prefer cancellation when the task was canceled while the tool was running.
                 try Task.checkCancellation()
@@ -53,7 +56,10 @@ struct AnyTool<Context: Sendable>: Sendable {
 
             try Task.checkCancellation()
             do {
-                return try GeneratedContent(output, using: declaration.output)
+                let encoder = GeneratedContentEncoder()
+                let schema = declaration.output
+
+                return try encoder.encode(output, using: schema)
             } catch let error as CancellationError {
                 throw error
             } catch {

@@ -4,9 +4,10 @@
 
 // MARK: - GenerationEncoder
 
-/// An encoder for manual ``Generable`` implementations.
+/// A schema-bound encoding context for manual ``Generable`` implementations.
 ///
-/// The encoder validates the completed value.
+/// Use ``GeneratedContentEncoder`` to start a root encoding operation. Values receive this
+/// lower-level encoder while writing their generated representation.
 ///
 /// ```swift
 /// func encode(to encoder: inout GenerationEncoder) throws {
@@ -53,38 +54,6 @@ public struct GenerationEncoder {
 
     private var encodedProperties: [GeneratedContent.Property] = []
     private var encodedPropertyNames: Set<String> = []
-}
-
-// MARK: Root encoding
-
-public extension GeneratedContent {
-    /// Creates and validates generated content from a ``Generable`` value.
-    ///
-    /// - Parameter value: The value to encode.
-    init<Value: Generable>(_ value: Value) throws {
-        let schema = try Value.generationSchema
-        try self.init(value, using: schema)
-    }
-
-    /// Creates and validates generated content using a supplied schema.
-    ///
-    /// Use this initializer to reuse a previously constructed schema. The schema must describe the
-    /// generated representation of `Value`.
-    ///
-    /// - Parameters:
-    ///   - value: The value to encode.
-    ///   - schema: The schema used to encode and validate the value.
-    init<Value: Generable>(
-        _ value: Value,
-        using schema: GenerationSchema,
-    ) throws {
-        var encoder = try GenerationEncoder(
-            node: schema.graph.root.node,
-            references: schema.graph.references,
-        )
-        try value.encode(to: &encoder)
-        self = try encoder.finish()
-    }
 }
 
 public extension GenerationEncoder {
@@ -268,7 +237,7 @@ extension GenerationEncoder {
 
 // MARK: State
 
-private extension GenerationEncoder {
+extension GenerationEncoder {
     consuming func finish() throws -> GeneratedContent {
         let content: GeneratedContent
         switch node {
@@ -294,7 +263,9 @@ private extension GenerationEncoder {
         try validations.validate(content)
         return content
     }
+}
 
+private extension GenerationEncoder {
     private mutating func set(content: consuming GeneratedContent) throws {
         guard case nil = self.content
         else { throw Error.invalidValue(expected: "a single encoded value") }

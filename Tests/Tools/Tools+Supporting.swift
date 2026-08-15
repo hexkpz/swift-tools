@@ -19,6 +19,8 @@ struct ApplicationContext: Sendable {
 }
 
 let context = ApplicationContext(prefix: "before ", suffix: " after")
+let generatedContentEncoder = GeneratedContentEncoder()
+let generatedContentDecoder = GeneratedContentDecoder()
 
 // MARK: - StringTool
 
@@ -65,7 +67,7 @@ func suffixTool(name: String = "suffix") -> StringTool<ApplicationContext> {
 }
 
 func content(_ value: String = "value") throws -> GeneratedContent {
-    try GeneratedContent(Arguments(value: value))
+    try generatedContentEncoder.encode(Arguments(value: value))
 }
 
 extension Swift.Result {

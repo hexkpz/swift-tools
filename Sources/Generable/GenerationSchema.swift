@@ -12,7 +12,7 @@ import Foundation
 
 /// A schema for generated content.
 ///
-/// Local validators run only in Swift and aren't included in ``generatedContent``.
+/// Local validators run only in Swift and aren't included in ``document``.
 ///
 /// ```swift
 /// let schema = try GenerationSchema.structure(
@@ -65,12 +65,12 @@ public struct GenerationSchema: Sendable {
     // MARK: Public
 
     /// The canonical JSON Schema representation.
-    public var generatedContent: GeneratedContent {
+    public var document: GeneratedContent {
         _read { yield graph.content }
     }
 
     #if canImport(FoundationEssentials) || canImport(Foundation)
-    public var description: String { generatedContent.description }
+    public var description: String { document.description }
     #endif
 
     /// Validates generated content.
@@ -315,19 +315,19 @@ public extension GenerationSchema {
     }
 }
 
-// MARK: - GenerationSchema + Equatable
+// MARK: Equatable
 
 extension GenerationSchema: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.generatedContent == rhs.generatedContent
+        lhs.document == rhs.document
     }
 }
 
-// MARK: - GenerationSchema + Hashable
+// MARK: Hashable
 
 extension GenerationSchema: Hashable {
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(generatedContent)
+        hasher.combine(document)
     }
 }
 
@@ -343,6 +343,6 @@ extension GenerationSchema: CustomStringConvertible {}
 
 extension GenerationSchema: CustomDebugStringConvertible {
     public var debugDescription: String {
-        "GenerationSchema(\(String(reflecting: generatedContent)))"
+        "GenerationSchema(\(String(reflecting: document)))"
     }
 }

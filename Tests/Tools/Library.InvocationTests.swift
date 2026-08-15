@@ -167,7 +167,10 @@ func `model-facing failures are isolated from successful calls`() async throws {
     #expect(unknown.message.contains("Unknown tool"))
     #expect(invalid.message.contains("Invalid arguments"))
     #expect(failure.message == "Try another value.")
-    #expect(try results[3].output.get().decode(String.self) == "before value")
+    #expect(try generatedContentDecoder.decode(
+        String.self,
+        from: results[3].output.get(),
+    ) == "before value")
 }
 
 @Test

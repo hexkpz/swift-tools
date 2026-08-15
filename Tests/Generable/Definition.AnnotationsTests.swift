@@ -27,9 +27,9 @@ func `annotations wrap compositions and references without replacing them`() thr
         name: "value",
         description: "An optional integer.",
         type: Int?.self,
-    ).schema.generatedContent
+    ).schema.document
 
-    let referenced = try AnnotatedDelivery.generationSchema.generatedContent
+    let referenced = try AnnotatedDelivery.generationSchema.document
         .property("properties")?
         .property("origin")
 
@@ -47,7 +47,7 @@ func `annotations preserve impossible schemas`() throws {
         type: Never.self,
     ).schema
 
-    #expect(stringValue(schema.generatedContent.property("description")) == "An impossible value.")
-    #expect(schema.generatedContent.property("not") != nil)
+    #expect(stringValue(schema.document.property("description")) == "An impossible value.")
+    #expect(schema.document.property("not") != nil)
     #expect(throws: Generable::Error.self) { try schema.validate(.null) }
 }

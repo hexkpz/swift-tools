@@ -61,7 +61,7 @@ func `URL decoding rejects empty and non-canonical strings`(_ invalid: String) t
     let schema = try URL.generationSchema
 
     #expect(throws: Generable::Error.self) {
-        _ = try GeneratedContent.string(invalid).decode(URL.self)
+        _ = try generatedContentDecoder.decode(URL.self, from: .string(invalid))
     }
 
     #expect(throws: Generable::Error.self) {

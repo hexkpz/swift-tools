@@ -90,9 +90,9 @@ private struct Envelope {
 func `recursive schemas use definitions and references`() throws {
     let schema = try RecursiveNode.generationSchema
 
-    guard case let .object(definitions)? = schema.generatedContent.property("$defs"),
+    guard case let .object(definitions)? = schema.document.property("$defs"),
           let definition = definitions.first(where: { $0.name.hasSuffix(".RecursiveNode") }),
-          let node = schema.generatedContent.property("$defs")?.property(definition.name),
+          let node = schema.document.property("$defs")?.property(definition.name),
           let children = node.property("properties")?.property("children"),
           let reference = stringValue(children.property("items")?.property("$ref"))
     else {
@@ -102,7 +102,7 @@ func `recursive schemas use definitions and references`() throws {
 
     #expect(reference == "#/$defs/\(definition.name)")
 
-    try schema.validate(GeneratedContent(RecursiveNode(
+    try schema.validate(generatedContentEncoder.encode(RecursiveNode(
         value: 1,
         children: [.init(value: 2, children: [])],
     )))
@@ -138,9 +138,9 @@ func `recursive schemas apply local validation at every level`() throws {
         children: [.init(value: "child", children: [])],
     )
 
-    try schema.validate(GeneratedContent(valid))
+    try schema.validate(generatedContentEncoder.encode(valid))
     #expect(throws: Generable::Error.self) {
-        try schema.validate(GeneratedContent(ValidatedRecursiveNode(
+        try schema.validate(generatedContentEncoder.encode(ValidatedRecursiveNode(
             value: "root",
             children: [.init(value: "", children: [])],
         )))
@@ -151,8 +151,8 @@ func `recursive schemas apply local validation at every level`() throws {
 func `reused named schemas share one canonical definition`() throws {
     let schema = try Delivery.generationSchema
 
-    guard case let .object(definitions)? = schema.generatedContent.property("$defs"),
-          let properties = schema.generatedContent.property("properties"),
+    guard case let .object(definitions)? = schema.document.property("$defs"),
+          let properties = schema.document.property("properties"),
           let origin = stringValue(properties.property("origin")?.property("$ref")),
           let destination = stringValue(properties.property("destination")?.property("$ref"))
     else {
@@ -169,8 +169,8 @@ func `reused named schemas share one canonical definition`() throws {
 func `inline schemas are promoted only when reused`() throws {
     let inline = try Envelope.generationSchema
 
-    #expect(inline.generatedContent.property("$defs") == nil)
-    #expect(inline.generatedContent
+    #expect(inline.document.property("$defs") == nil)
+    #expect(inline.document
         .property("properties")?
         .property("address")?
         .property("$ref") == nil)
@@ -180,8 +180,8 @@ func `inline schemas are promoted only when reused`() throws {
         .init(name: "second", schema: inline),
     ])
 
-    #expect(reused.generatedContent.property("$defs") != nil)
-    #expect(reused.generatedContent
+    #expect(reused.document.property("$defs") != nil)
+    #expect(reused.document
         .property("properties")?
         .property("first")?
         .property("properties")?
@@ -196,9 +196,10 @@ func `nesting a recursive schema retains its definitions`() throws {
         .init(name: "node", schema: recursive),
     ])
 
-    #expect(schema.generatedContent.property("$defs") != nil)
-    try schema.validate(.init(properties: [("node", GeneratedContent(RecursiveNode(
+    #expect(schema.document.property("$defs") != nil)
+    let node = try generatedContentEncoder.encode(RecursiveNode(
         value: 1,
         children: [.init(value: 2, children: [])],
-    )))]))
+    ))
+    try schema.validate(.init(properties: [("node", node)]))
 }

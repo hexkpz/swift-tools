@@ -82,27 +82,28 @@ private enum InvalidChoicePayload: CaseIterable, Sendable, CustomTestStringConve
     .pair(name: "answer", value: 42),
 ])
 private func `generated enumerations round trip every payload shape`(_ value: Choice) throws {
-    let content = try GeneratedContent(value)
-    let decoded = try content.decode(Choice.self)
+    let content = try generatedContentEncoder.encode(value)
+    let decoded = try generatedContentDecoder.decode(Choice.self, from: content)
 
     #expect(decoded == value)
 }
 
 @Test(arguments: [Direction.north, .south])
 private func `simple generated enumerations round trip`(_ value: Direction) throws {
-    #expect(try GeneratedContent(value).decode(Direction.self) == value)
+    let content = try generatedContentEncoder.encode(value)
+    #expect(try generatedContentDecoder.decode(Direction.self, from: content) == value)
 }
 
 @Test
 func `generated enumerations reject unknown discriminators`() {
     #expect(throws: Generable::Error.self) {
-        _ = try GeneratedContent.string("west").decode(Direction.self)
+        _ = try generatedContentDecoder.decode(Direction.self, from: .string("west"))
     }
 }
 
 @Test(arguments: InvalidChoicePayload.allCases)
 private func `generated enumerations reject malformed payloads`(_ testCase: InvalidChoicePayload) {
     #expect(throws: Generable::Error.self) {
-        _ = try testCase.content.decode(Choice.self)
+        _ = try generatedContentDecoder.decode(Choice.self, from: testCase.content)
     }
 }

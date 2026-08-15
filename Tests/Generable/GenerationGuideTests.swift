@@ -22,16 +22,16 @@ func `local validators stay local while enforcing generated values`() throws {
     let valid = GeneratedContent(properties: [("value", .string("value"))])
     let invalid = GeneratedContent(properties: [("value", .string(""))])
 
-    let valueSchema = try #require(schema.generatedContent
+    let valueSchema = try #require(schema.document
         .property("properties")?
         .property("value"))
 
     #expect(stringValue(valueSchema.property("type")) == "string")
     #expect(valueSchema.property("format") == nil)
 
-    _ = try valid.decode(GuidedIdentifier.self)
+    _ = try generatedContentDecoder.decode(GuidedIdentifier.self, from: valid)
     #expect(throws: Generable::Error.self) {
-        _ = try invalid.decode(GuidedIdentifier.self)
+        _ = try generatedContentDecoder.decode(GuidedIdentifier.self, from: invalid)
     }
 }
 
@@ -46,7 +46,7 @@ func `repeated allowed-value guides intersect and deduplicate`() throws {
         ],
     ).schema
 
-    #expect(stringValues(schema.generatedContent.property("enum")) == ["shared"])
+    #expect(stringValues(schema.document.property("enum")) == ["shared"])
 }
 
 @Test

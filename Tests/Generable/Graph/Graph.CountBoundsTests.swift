@@ -21,8 +21,8 @@ private func strongestCountBoundsSchema() throws -> GenerationSchema {
 func `count bounds keep the strongest range`() throws {
     let schema = try strongestCountBoundsSchema()
 
-    #expect(integerValue(schema.generatedContent.property("minItems"), as: Int.self) == 2)
-    #expect(integerValue(schema.generatedContent.property("maxItems"), as: Int.self) == 5)
+    #expect(integerValue(schema.document.property("minItems"), as: Int.self) == 2)
+    #expect(integerValue(schema.document.property("maxItems"), as: Int.self) == 5)
 }
 
 @Test(arguments: [2, 5])

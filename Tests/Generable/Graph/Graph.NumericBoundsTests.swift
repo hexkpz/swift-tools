@@ -21,8 +21,8 @@ func `integer bounds remain exact beyond floating-point precision`() throws {
         guides: [.maximum(.max)],
     ).schema
 
-    #expect(integerValue(signed.generatedContent.property("minimum"), as: Int.self) == minimum)
-    #expect(integerValue(unsigned.generatedContent.property(
+    #expect(integerValue(signed.document.property("minimum"), as: Int.self) == minimum)
+    #expect(integerValue(unsigned.document.property(
         "maximum",
     ), as: UInt64.self) == .max)
 
@@ -67,7 +67,7 @@ func `equivalent repeated bounds normalize canonically`() throws {
     let second = try GenerationSchema.number(constraints: [.minimum(-0.0), .minimum(Int(0))])
 
     #expect(first == second)
-    #expect(integerValue(first.generatedContent.property("minimum"), as: Int.self) == 0)
+    #expect(integerValue(first.document.property("minimum"), as: Int.self) == 0)
 }
 
 @Test

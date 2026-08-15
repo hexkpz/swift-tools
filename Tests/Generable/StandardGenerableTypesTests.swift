@@ -48,9 +48,9 @@ private let standardValues: [StandardValues] = [
 private func `standard generable values round trip through their schema`(
     _ value: StandardValues,
 ) throws {
-    let content = try GeneratedContent(value)
+    let content = try generatedContentEncoder.encode(value)
 
     try StandardValues.generationSchema.validate(content)
-    #expect(try content.decode(StandardValues.self) == value)
+    #expect(try generatedContentDecoder.decode(StandardValues.self, from: content) == value)
     #expect((content.property("optional") == nil) == (value.optional == nil))
 }

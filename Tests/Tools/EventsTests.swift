@@ -90,8 +90,11 @@ func `events report complete lifecycles to every observer`() async throws {
     #expect(successful.id == completed.id)
     #expect(successful.call.id == "successful")
     #expect(successful.tool.name == "prefix")
-    #expect(try successful.arguments.decode(Arguments.self) == .init(value: "value"))
-    #expect(try output.decode(String.self) == "before value")
+    #expect(try generatedContentDecoder.decode(
+        Arguments.self,
+        from: successful.arguments,
+    ) == .init(value: "value"))
+    #expect(try generatedContentDecoder.decode(String.self, from: output) == "before value")
     #expect(successfulDuration >= 0)
     #expect(failing.id == failed.id)
     #expect(failing.call.id == "failing")
@@ -146,7 +149,10 @@ func `cancelling an observer doesn't cancel tool execution`() async throws {
         [Call(named: "prefix", with: content())],
         in: context,
     )
-    #expect(try results[0].output.get().decode(String.self) == "before value")
+    #expect(try generatedContentDecoder.decode(
+        String.self,
+        from: results[0].output.get(),
+    ) == "before value")
 }
 
 @Test

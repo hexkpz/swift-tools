@@ -41,7 +41,7 @@ func `set schemas and decoding reject duplicate generated elements`() throws {
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 
     #expect {
-        _ = try content.decode(Set<Int>.self)
+        _ = try generatedContentDecoder.decode(Set<Int>.self, from: content)
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 }
 
@@ -54,7 +54,7 @@ func `set encoding has a canonical element order`() throws {
     ]
 
     for permutation in permutations {
-        let content = try GeneratedContent(Set(permutation))
+        let content = try generatedContentEncoder.encode(Set(permutation))
         guard case let .array(elements) = content else {
             Issue.record("Expected array content.")
             continue
@@ -69,6 +69,6 @@ func `set encoding rejects distinct values with identical generated content`() {
     let values: Set<CollidingValue> = [.init(1), .init(2)]
 
     #expect {
-        _ = try GeneratedContent(values)
+        _ = try generatedContentEncoder.encode(values)
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 }

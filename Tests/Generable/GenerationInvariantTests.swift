@@ -103,13 +103,13 @@ private func `generated values preserve the codec and JSON invariants`(_ seed: U
     var generator = SeededGenerator(seed: seed)
     let value = generator.value()
     let schema = try CorpusValue.generationSchema
-    let content = try GeneratedContent(value)
+    let content = try generatedContentEncoder.encode(value)
 
     try schema.validate(content)
 
     let decodedJSON = try GeneratedContent(content.data())
     #expect(decodedJSON.description == content.description)
-    #expect(try decodedJSON.decode(CorpusValue.self) == value)
+    #expect(try generatedContentDecoder.decode(CorpusValue.self, from: decodedJSON) == value)
 }
 #endif
 
@@ -120,7 +120,8 @@ func `deep recursive values round trip without losing structure`() throws {
         DeepNode(value: $1, children: [$0])
     }
 
-    let decoded = try GeneratedContent(value).decode(DeepNode.self)
+    let content = try generatedContentEncoder.encode(value)
+    let decoded = try generatedContentDecoder.decode(DeepNode.self, from: content)
 
     var cursor = decoded
     for expected in 0 ..< depth {
@@ -141,5 +142,6 @@ func `large collections round trip`() throws {
         }),
     )
 
-    #expect(try GeneratedContent(value).decode(LargeCollections.self) == value)
+    let content = try generatedContentEncoder.encode(value)
+    #expect(try generatedContentDecoder.decode(LargeCollections.self, from: content) == value)
 }

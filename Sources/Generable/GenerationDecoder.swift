@@ -4,9 +4,10 @@
 
 // MARK: - GenerationDecoder
 
-/// A decoder for manual ``Generable`` implementations.
+/// A schema-bound decoding context for manual ``Generable`` implementations.
 ///
-/// The decoder validates the completed value.
+/// Use ``GeneratedContentDecoder`` to start a root decoding operation. Values receive this
+/// lower-level decoder while reading their generated representation.
 ///
 /// ```swift
 /// init(from decoder: inout GenerationDecoder) throws {
@@ -60,44 +61,6 @@ public struct GenerationDecoder {
 
     private var consumed = false
     private var decodedProperties: Set<String> = []
-}
-
-// MARK: Root decoding
-
-public extension GeneratedContent {
-    /// Decodes and validates this content as a ``Generable`` value.
-    ///
-    /// - Parameter type: The value type.
-    /// - Returns: The decoded value.
-    func decode<Value: Generable>(_ type: Value.Type = Value.self) throws -> Value {
-        let schema = try Value.generationSchema
-        return try decode(type, using: schema)
-    }
-
-    /// Decodes and validates this content using a supplied schema.
-    ///
-    /// Use this overload to reuse a previously constructed schema. The schema must describe the
-    /// generated representation of `Value`.
-    ///
-    /// - Parameters:
-    ///   - type: The value type.
-    ///   - schema: The schema used to decode and validate the value.
-    /// - Returns: The decoded value.
-    func decode<Value: Generable>(
-        _ type: Value.Type = Value.self,
-        using schema: GenerationSchema,
-    ) throws -> Value {
-        var decoder = try GenerationDecoder(
-            node: schema.graph.root.node,
-            references: schema.graph.references,
-            content: self,
-        )
-
-        let value = try type.init(from: &decoder)
-        try decoder.finish()
-
-        return value
-    }
 }
 
 public extension GenerationDecoder {
@@ -318,7 +281,7 @@ extension GenerationDecoder {
 
 // MARK: State
 
-private extension GenerationDecoder {
+extension GenerationDecoder {
     func finish() throws {
         if case let .structure(structure) = node {
             guard case let .object(object) = content
@@ -339,7 +302,9 @@ private extension GenerationDecoder {
 
         try validations.validate(content)
     }
+}
 
+private extension GenerationDecoder {
     private mutating func consumeValue() throws {
         guard !consumed
         else { throw Error.invalidValue(expected: "a single decoded value") }

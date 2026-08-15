@@ -141,7 +141,10 @@ func `batch limits concurrency and preserves input order`() async throws {
     #expect(results.map(\.id) == ["0", "1", "2", "3"])
 
     for (index, result) in results.enumerated() {
-        #expect(try result.output.get().decode(String.self) == String(index))
+        #expect(try generatedContentDecoder.decode(
+            String.self,
+            from: result.output.get(),
+        ) == String(index))
     }
 }
 
@@ -170,9 +173,15 @@ func `cancellation from one call doesn't cancel other calls`() async throws {
     )
 
     #expect(results.map(\.id) == ["blocking", "cancelling", "successful"])
-    #expect(try results[0].output.get().decode(String.self) == "completed")
+    #expect(try generatedContentDecoder.decode(
+        String.self,
+        from: results[0].output.get(),
+    ) == "completed")
     #expect(results[1].output.error is CancellationError)
-    #expect(try results[2].output.get().decode(String.self) == "before value")
+    #expect(try generatedContentDecoder.decode(
+        String.self,
+        from: results[2].output.get(),
+    ) == "before value")
 }
 
 @Test

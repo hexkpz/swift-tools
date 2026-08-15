@@ -133,25 +133,31 @@ func `generated structures handle optional fields`(_ note: String?) throws {
         properties.append(("note", .string(note)))
     }
 
-    let value = try GeneratedContent(properties: properties).decode(Sample.self)
+    let value = try generatedContentDecoder.decode(
+        Sample.self,
+        from: GeneratedContent(properties: properties),
+    )
     #expect(value.note == note)
 }
 
 @Test
 func `generated optional properties accept explicit null`() throws {
-    let value = try GeneratedContent(properties: [
-        ("title", .string("Value")),
-        ("score", .integer(10)),
-        ("note", .null),
-    ]).decode(Sample.self)
+    let value = try generatedContentDecoder.decode(
+        Sample.self,
+        from: GeneratedContent(properties: [
+            ("title", .string("Value")),
+            ("score", .integer(10)),
+            ("note", .null),
+        ]),
+    )
 
     #expect(value.note == nil)
-    #expect(try GeneratedContent(value).property("note") == nil)
+    #expect(try generatedContentEncoder.encode(value).property("note") == nil)
 }
 
 @Test
 func `empty generated structures round trip`() throws {
-    let content = try GeneratedContent(EmptyValue())
+    let content = try generatedContentEncoder.encode(EmptyValue())
 
     guard case let .object(properties) = content else {
         Issue.record("Expected object content.")
@@ -159,14 +165,15 @@ func `empty generated structures round trip`() throws {
     }
 
     #expect(properties.isEmpty)
-    #expect(try content.decode(EmptyValue.self) == EmptyValue())
+    #expect(try generatedContentDecoder.decode(EmptyValue.self, from: content) == EmptyValue())
 }
 
 @Test
 func `generic generated structures round trip`() throws {
     let value = Box(value: 42)
 
-    #expect(try GeneratedContent(value).decode(Box<Int>.self) == value)
+    let content = try generatedContentEncoder.encode(value)
+    #expect(try generatedContentDecoder.decode(Box<Int>.self, from: content) == value)
 }
 
 @Test
@@ -176,8 +183,8 @@ func `generated structures include only stored instance properties`() throws {
         ("repeat", .string("value")),
     ])
 
-    let value = try content.decode(StoredPropertySelection.self)
-    let encoded = try GeneratedContent(value)
+    let value = try generatedContentDecoder.decode(StoredPropertySelection.self, from: content)
+    let encoded = try generatedContentEncoder.encode(value)
 
     #expect(value.identifier == 42)
     #expect(value.repeat == "value")
@@ -191,17 +198,21 @@ func `generated structures include only stored instance properties`() throws {
 @Test
 func `generated structures enforce guides`() {
     #expect(throws: Generable::Error.self) {
-        _ = try GeneratedContent(properties: [
-            ("title", .string("Invalid")),
-            ("score", .integer(11)),
-        ]).decode(Sample.self)
+        _ = try generatedContentDecoder.decode(
+            Sample.self,
+            from: GeneratedContent(properties: [
+                ("title", .string("Invalid")),
+                ("score", .integer(11)),
+            ]),
+        )
     }
 }
 
 @Test
 func `multiple bindings and observed properties are generated`() throws {
     let value = ObservedValues(first: 1, second: 2, observed: 3)
-    let decoded = try GeneratedContent(value).decode(ObservedValues.self)
+    let content = try generatedContentEncoder.encode(value)
+    let decoded = try generatedContentDecoder.decode(ObservedValues.self, from: content)
 
     #expect(decoded.first == value.first)
     #expect(decoded.second == value.second)
@@ -210,13 +221,19 @@ func `multiple bindings and observed properties are generated`() throws {
 
 @Test
 func `inferred count guides reject empty arrays`() throws {
-    _ = try GeneratedContent(properties: [
-        ("values", .array([.integer(1)])),
-    ]).decode(DefaultedValues.self)
+    _ = try generatedContentDecoder.decode(
+        DefaultedValues.self,
+        from: GeneratedContent(properties: [
+            ("values", .array([.integer(1)])),
+        ]),
+    )
     #expect(throws: Generable::Error.self) {
-        _ = try GeneratedContent(properties: [
-            ("values", .array([])),
-        ]).decode(DefaultedValues.self)
+        _ = try generatedContentDecoder.decode(
+            DefaultedValues.self,
+            from: GeneratedContent(properties: [
+                ("values", .array([])),
+            ]),
+        )
     }
 }
 
@@ -226,10 +243,11 @@ func `ignored properties retain their defaults outside generated content`() thro
     value.state.value = "changed"
     value.snapshot.value = "changed"
 
-    let content = try GeneratedContent(value)
-    var decoded = try content.decode(IgnoredProperties.self)
+    let content = try generatedContentEncoder.encode(value)
+    var decoded = try generatedContentDecoder.decode(IgnoredProperties.self, from: content)
 
-    #expect(try content.property("value")?.decode(Int.self) == 42)
+    let valueContent = try #require(content.property("value"))
+    #expect(try generatedContentDecoder.decode(Int.self, from: valueContent) == 42)
     #expect(content.property("state") == nil)
     #expect(content.property("source") == nil)
     #expect(content.property("snapshot") == nil)
@@ -249,25 +267,34 @@ func `ignored properties retain their defaults outside generated content`() thro
 
 @Test
 func `optional aliases select the optional decoding overload`() throws {
-    let value = try GeneratedContent(properties: []).decode(AliasedOptionalValue.self)
+    let value = try generatedContentDecoder.decode(
+        AliasedOptionalValue.self,
+        from: GeneratedContent(properties: []),
+    )
 
     #expect(value.number == nil)
-    #expect(try GeneratedContent(value).property("number") == nil)
+    #expect(try generatedContentEncoder.encode(value).property("number") == nil)
 }
 
 @Test
 func `nested values use their manual Generable initializer`() throws {
-    let value = try GeneratedContent(properties: [
-        ("leaf", .integer(1)),
-        ("leaves", .array([.integer(2), .integer(3)])),
-    ]).decode(ValidatedContainer.self)
+    let value = try generatedContentDecoder.decode(
+        ValidatedContainer.self,
+        from: GeneratedContent(properties: [
+            ("leaf", .integer(1)),
+            ("leaves", .array([.integer(2), .integer(3)])),
+        ]),
+    )
 
     #expect(value.leaf.value == 1)
     #expect(value.leaves.map(\.value) == [2, 3])
     #expect(throws: Generable::Error.self) {
-        _ = try GeneratedContent(properties: [
-            ("leaf", .string("invalid")),
-            ("leaves", .array([])),
-        ]).decode(ValidatedContainer.self)
+        _ = try generatedContentDecoder.decode(
+            ValidatedContainer.self,
+            from: GeneratedContent(properties: [
+                ("leaf", .string("invalid")),
+                ("leaves", .array([])),
+            ]),
+        )
     }
 }

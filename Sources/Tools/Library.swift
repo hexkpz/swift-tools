@@ -24,7 +24,8 @@ import Synchronization
 ///     ),
 /// ])
 ///
-/// let greeting = try results[0].output.get().decode(String.self)
+/// let decoder = GeneratedContentDecoder()
+/// let greeting = try decoder.decode(String.self, from: results[0].output.get())
 /// ```
 public struct Library<Context: Sendable>: Sendable {
     // MARK: Lifecycle

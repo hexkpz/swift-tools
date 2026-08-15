@@ -101,15 +101,15 @@ Create a library, insert tools, and pass it calls containing structured argument
 let library = Library<Void>(name: "Assistant")
 try library.insert(GreetingTool())
 
-let arguments = try GeneratedContent(
-    GreetingTool.Arguments(name: "Ada")
-)
+let encoder = GeneratedContentEncoder()
+let arguments = try encoder.encode(GreetingTool.Arguments(name: "Ada"))
 
 let results = try await library.perform([
     Call(id: "call-1", named: "greet", with: arguments),
 ])
 
-let greeting = try results[0].output.get().decode(String.self)
+let decoder = GeneratedContentDecoder()
+let greeting = try decoder.decode(String.self, from: results[0].output.get())
 print(greeting) // Hello, Ada!
 ```
 
@@ -122,8 +122,8 @@ integration can translate these declarations into its own tool format:
 
 ```swift
 let declaration = library.declaration(named: "greet")
-let argumentSchema = declaration?.arguments.generatedContent
-let outputSchema = declaration?.output.generatedContent
+let argumentSchema = declaration?.arguments.document
+let outputSchema = declaration?.output.document
 ```
 
 Both schemas are represented as canonical JSON Schema in `GeneratedContent`.
@@ -159,7 +159,9 @@ let library = Library<ApplicationContext>()
 try library.insert(LocalizedGreetingTool())
 
 let context = ApplicationContext(locale: "en_US")
-let arguments = try GeneratedContent(LocalizedGreetingTool.Arguments(name: "Ada"))
+
+let encoder = GeneratedContentEncoder()
+let arguments = try encoder.encode(LocalizedGreetingTool.Arguments(name: "Ada"))
 
 let results = try await library.perform(
     [Call(named: "localized-greeting", with: arguments)],
@@ -232,16 +234,24 @@ struct Movie {
 }
 
 let movie = Movie(title: "Arrival", score: 5)
-let content = try GeneratedContent(movie)
-let decoded = try content.decode(Movie.self)
+
+let encoder = GeneratedContentEncoder()
+let content = try encoder.encode(movie)
+
+let decoder = GeneratedContentDecoder()
+let decoded = try decoder.decode(Movie.self, from: content)
 
 let schema = try Movie.generationSchema
-print(schema.generatedContent)
+print(schema.document)
 ```
 
-`GeneratedContent` represents JSON-compatible values while preserving integer precision. Object
-properties have a canonical order, and the `description` and `data()` representations use sorted
-keys.
+`GeneratedContent` stores JSON-compatible values without losing integer precision. Object keys are
+sorted, so `description` and `data()` produce stable output. Use `GeneratedContentEncoder` and
+`GeneratedContentDecoder` to encode and decode `Generable` values.
+
+`GenerationSchema.document` returns the JSON Schema document. Local Swift validators still run
+when values are encoded, decoded, or validated, but they aren't included in that document. Use the
+`using:` overloads to reuse an existing schema.
 
 ### Ignored Properties
 
@@ -301,7 +311,7 @@ let content = GeneratedContent(properties: [("score", .integer(5))])
 try schema.validate(content)
 ```
 
-The schema's `generatedContent` property contains its canonical JSON Schema representation.
+The schema's `document` property contains its canonical JSON Schema representation.
 
 ## Requirements
 

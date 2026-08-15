@@ -83,22 +83,29 @@ private struct DuplicatePropertyDecoding: Generable {
 @Test
 func `decoder rejects unconsumed enumeration payloads`() {
     #expect {
-        _ = try GeneratedContent(properties: [("none", .null)])
-            .decode(UnconsumedEnumeration.self)
+        _ = try generatedContentDecoder.decode(
+            UnconsumedEnumeration.self,
+            from: GeneratedContent(properties: [("none", .null)]),
+        )
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 }
 
 @Test
 func `decoder reports a missing required property`() {
     #expect {
-        _ = try GeneratedContent(properties: []).decode(RequiredPropertyDecoding.self)
+        _ = try generatedContentDecoder.decode(
+            RequiredPropertyDecoding.self,
+            from: GeneratedContent(properties: []),
+        )
     } throws: { GenerableErrorKind.missingProperty.matches($0) }
 }
 
 @Test
 func `decoder rejects reading a property more than once`() {
     #expect {
-        _ = try GeneratedContent(properties: [("value", .integer(1))])
-            .decode(DuplicatePropertyDecoding.self)
+        _ = try generatedContentDecoder.decode(
+            DuplicatePropertyDecoding.self,
+            from: GeneratedContent(properties: [("value", .integer(1))]),
+        )
     } throws: { GenerableErrorKind.constraintViolation.matches($0) }
 }

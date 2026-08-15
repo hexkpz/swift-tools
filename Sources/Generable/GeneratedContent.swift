@@ -4,19 +4,15 @@
 
 // MARK: - GeneratedContent
 
-/// A JSON-compatible representation of a ``Generable`` value.
+/// A JSON-compatible generated value.
 ///
 /// Integers preserve their precision, and object properties are sorted by name.
 ///
 /// ```swift
-/// @Generable
-/// struct Person {
-///     var name: String
-///     var age: Int
-/// }
-///
-/// let content = try GeneratedContent(Person(name: "Ada", age: 36))
-/// let person = try content.decode(Person.self)
+/// let content = GeneratedContent(properties: [
+///     ("name", .string("Ada")),
+///     ("age", .integer(36)),
+/// ])
 /// ```
 @frozen
 public enum GeneratedContent: Sendable {

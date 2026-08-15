@@ -121,7 +121,7 @@ func `dictionary schemas and JSON encoding reject duplicate properties`() throws
 @Test
 func `non-finite numbers fail at ingestion and validation`() {
     #expect(throws: Generable::Error.self) {
-        _ = try GeneratedContent(Double.nan)
+        _ = try generatedContentEncoder.encode(Double.nan)
     }
     #expect(throws: Generable::Error.self) {
         try GenerationSchema.number().validate(.number(.infinity))

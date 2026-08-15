@@ -120,27 +120,27 @@ private struct DuplicateValueEncoding: Generable {
 @Test
 func `encoder rejects duplicate property writes`() {
     #expect {
-        _ = try GeneratedContent(DuplicatePropertyEncoding(value: 1))
+        _ = try generatedContentEncoder.encode(DuplicatePropertyEncoding(value: 1))
     } throws: { GenerableErrorKind.constraintViolation.matches($0) }
 }
 
 @Test
 func `encoder reports a missing required property`() {
     #expect {
-        _ = try GeneratedContent(MissingPropertyEncoding())
+        _ = try generatedContentEncoder.encode(MissingPropertyEncoding())
     } throws: { GenerableErrorKind.missingProperty.matches($0) }
 }
 
 @Test
 func `encoder rejects properties outside the declared schema`() {
     #expect {
-        _ = try GeneratedContent(UnexpectedPropertyEncoding(value: 1))
+        _ = try generatedContentEncoder.encode(UnexpectedPropertyEncoding(value: 1))
     } throws: { GenerableErrorKind.unexpectedProperty.matches($0) }
 }
 
 @Test
 func `encoder rejects writing a root value more than once`() {
     #expect {
-        _ = try GeneratedContent(DuplicateValueEncoding(value: 1))
+        _ = try generatedContentEncoder.encode(DuplicateValueEncoding(value: 1))
     } throws: { GenerableErrorKind.invalidValue.matches($0) }
 }
