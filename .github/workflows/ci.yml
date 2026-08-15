@@ -5,25 +5,29 @@ on:
   push:
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        os: [macos-15, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+  test-linux:
+    runs-on: ubuntu-24.04
+    container: swift:6.3.3-noble
     steps:
-      - uses: actions/checkout@v4
-      - uses: swift-actions/setup-swift@v3
-        with:
-          swift-version: "6.3"
+      - uses: actions/checkout@v6
+      - name: Debug tests
+        run: swift test -Xswiftc -warnings-as-errors
+      - name: Release tests
+        run: swift test -c release -Xswiftc -warnings-as-errors
+
+  test-macos:
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v6
       - name: Debug tests
         run: swift test -Xswiftc -warnings-as-errors
       - name: Release tests
         run: swift test -c release -Xswiftc -warnings-as-errors
       - name: AddressSanitizer
-        if: matrix.os == 'macos-15'
         run: swift test --sanitize=address --no-parallel -Xswiftc -warnings-as-errors
       - name: ThreadSanitizer
-        if: matrix.os == 'macos-15'
         run: swift test --sanitize=thread -Xswiftc -warnings-as-errors
 
   apple-platforms:
@@ -40,7 +44,7 @@ jobs:
           - generic/platform=watchOS
           - generic/platform=visionOS
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Xcode version
         run: xcodebuild -version
       - name: Build Tools
