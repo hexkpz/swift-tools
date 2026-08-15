@@ -18,6 +18,13 @@ private struct CanonicalObjectCase: Sendable, CustomTestStringConvertible {
     let content: GeneratedContent
 }
 
+private extension String {
+    init(_ value: Int, zeroPaddedTo length: Int) {
+        let value = String(value)
+        self = String(repeating: "0", count: Swift.max(0, length - value.count)) + value
+    }
+}
+
 private let canonicalObjectCases: [CanonicalObjectCase] = [
     .init(
         testDescription: "object initializer",
@@ -43,9 +50,7 @@ private let canonicalObjectCases: [CanonicalObjectCase] = [
 ]
 
 private let indexedObject = GeneratedContent.object(.init(
-    (0 ..< 128).reversed().map { index in
-        .init(index.formatted(.number.precision(.integerLength(3))), .integer(index))
-    },
+    (0 ..< 128).reversed().map { index in .init(String(index, zeroPaddedTo: 3), .integer(index)) },
 ))
 
 #if canImport(FoundationEssentials) || canImport(Foundation)
