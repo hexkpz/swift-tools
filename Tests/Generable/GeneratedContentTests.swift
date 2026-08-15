@@ -43,7 +43,9 @@ private let canonicalObjectCases: [CanonicalObjectCase] = [
 ]
 
 private let indexedObject = GeneratedContent.object(.init(
-    (0 ..< 128).reversed().map { index in .init(String(format: "%03d", index), .integer(index)) },
+    (0 ..< 128).reversed().map { index in
+        .init(index.formatted(.number.precision(.integerLength(3))), .integer(index))
+    },
 ))
 
 #if canImport(FoundationEssentials) || canImport(Foundation)
