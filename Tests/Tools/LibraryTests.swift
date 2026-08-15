@@ -133,6 +133,23 @@ func `library dispatches calls with their shared context`() async throws {
 }
 
 @Test
+func `library performs a single call with its shared context`() async throws {
+    let library = Library<ApplicationContext>()
+    try library.insert(prefixTool())
+
+    let result = try await library.perform(
+        Call(id: "single", named: "prefix", with: content()),
+        in: context,
+    )
+
+    #expect(result.id == "single")
+    #expect(try generatedContentDecoder.decode(
+        String.self,
+        from: result.output.get(),
+    ) == "before value")
+}
+
+@Test
 func `void library performs calls without an explicit context`() async throws {
     let library = Library<Void>()
     try library.insert(StringTool(name: "identity") { arguments, _ in arguments.value })
@@ -144,5 +161,21 @@ func `void library performs calls without an explicit context`() async throws {
     #expect(try generatedContentDecoder.decode(
         String.self,
         from: results[0].output.get(),
+    ) == "hello")
+}
+
+@Test
+func `void library performs a single call without an explicit context`() async throws {
+    let library = Library<Void>()
+    try library.insert(StringTool(name: "identity") { arguments, _ in arguments.value })
+
+    let result = try await library.perform(
+        Call(id: "single", named: "identity", with: content("hello")),
+    )
+
+    #expect(result.id == "single")
+    #expect(try generatedContentDecoder.decode(
+        String.self,
+        from: result.output.get(),
     ) == "hello")
 }

@@ -15,17 +15,15 @@ import Synchronization
 /// let library = Library<Void>(name: "Assistant")
 /// try library.insert(GreetingTool())
 ///
-/// let results = try await library.perform([
-///     Call(
-///         named: "greet",
-///         with: GeneratedContent(properties: [
-///             ("name", .string("Ada")),
-///         ])
-///     ),
-/// ])
+/// let result = await library.perform(Call(
+///     named: "greet",
+///     with: GeneratedContent(properties: [
+///         ("name", .string("Ada")),
+///     ])
+/// ))
 ///
 /// let decoder = GeneratedContentDecoder()
-/// let greeting = try decoder.decode(String.self, from: results[0].output.get())
+/// let greeting = try decoder.decode(String.self, from: result.output.get())
 /// ```
 public struct Library<Context: Sendable>: Sendable {
     // MARK: Lifecycle
@@ -145,6 +143,23 @@ public extension Library {
 }
 
 public extension Library {
+    /// Runs a tool call.
+    ///
+    /// The returned result contains either the tool output or the error produced by the call.
+    ///
+    /// - Parameters:
+    ///   - call: The call to run.
+    ///   - context: The context passed to the tool.
+    /// - Returns: The result of the call.
+    func perform(_ call: Call, in context: Context) async -> Call.Result {
+        do {
+            let output: GeneratedContent = try await perform(call, in: context)
+            return Call.Result(call: call, output: .success(output))
+        } catch {
+            return Call.Result(call: call, output: .failure(error))
+        }
+    }
+
     /// Runs tool calls concurrently.
     ///
     /// Results preserve input order. If a tool throws `CancellationError`, only that call fails and
@@ -202,15 +217,6 @@ public extension Library {
         }
     }
 
-    private func perform(_ call: Call, in context: Context) async -> Call.Result {
-        do {
-            let output: GeneratedContent = try await perform(call, in: context)
-            return Call.Result(call: call, output: .success(output))
-        } catch {
-            return Call.Result(call: call, output: .failure(error))
-        }
-    }
-
     private func perform(_ call: Call, in context: Context) async throws -> GeneratedContent {
         try Task.checkCancellation()
 
@@ -246,6 +252,14 @@ public extension Library {
 }
 
 public extension Library where Context == Void {
+    /// Runs a context-free tool call.
+    ///
+    /// - Parameter call: The call to run.
+    /// - Returns: The result of the call.
+    func perform(_ call: Call) async -> Call.Result {
+        await perform(call, in: ())
+    }
+
     /// Runs context-free tool calls concurrently.
     ///
     /// - Parameters:

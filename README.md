@@ -104,12 +104,12 @@ try library.insert(GreetingTool())
 let encoder = GeneratedContentEncoder()
 let arguments = try encoder.encode(GreetingTool.Arguments(name: "Ada"))
 
-let results = try await library.perform([
-    Call(id: "call-1", named: "greet", with: arguments),
-])
+let result = await library.perform(
+    Call(id: "call-1", named: "greet", with: arguments)
+)
 
 let decoder = GeneratedContentDecoder()
-let greeting = try decoder.decode(String.self, from: results[0].output.get())
+let greeting = try decoder.decode(String.self, from: result.output.get())
 print(greeting) // Hello, Ada!
 ```
 
