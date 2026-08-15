@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Debug tests
-        run: swift test -Xswiftc -warnings-as-errors
+        run: swift test --jobs 2 -Xswiftc -warnings-as-errors
       - name: Release tests
-        run: swift test -c release -Xswiftc -warnings-as-errors
+        run: swift test --jobs 2 -c release -Xswiftc -warnings-as-errors
 
   test-macos:
     runs-on: macos-26
