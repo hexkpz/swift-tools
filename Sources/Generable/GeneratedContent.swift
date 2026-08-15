@@ -76,6 +76,72 @@ public extension GeneratedContent {
 
         self = .object(.init(result))
     }
+}
+
+public extension GeneratedContent {
+    /// Whether this value is null.
+    var isNull: Bool {
+        guard case .null = self else { return false }
+        return true
+    }
+
+    /// The associated Boolean, or `nil` when this value has another kind.
+    var boolean: Bool? {
+        guard case let .boolean(value) = self else { return nil }
+        return value
+    }
+
+    /// The associated integer, or `nil` when this value has another kind.
+    var integer: (any GeneratedBinaryInteger)? {
+        guard case let .integer(value) = self else { return nil }
+        return value
+    }
+
+    /// Returns the associated integer converted exactly to `Value`.
+    func integer<Value: BinaryInteger>(as _: Value.Type) -> Value? {
+        guard case let .integer(value) = self else { return nil }
+        return Value(exactly: value)
+    }
+
+    /// The associated floating-point number, or `nil` when this value has another kind.
+    var number: Double? {
+        guard case let .number(value) = self else { return nil }
+        return value
+    }
+
+    /// The associated string, or `nil` when this value has another kind.
+    var string: String? {
+        guard case let .string(value) = self else { return nil }
+        return value
+    }
+}
+
+public extension GeneratedContent {
+    /// The associated array, or `nil` when this value has another kind.
+    var array: [GeneratedContent]? {
+        guard case let .array(value) = self else { return nil }
+        return value
+    }
+
+    /// Returns an array element by index.
+    ///
+    /// - Parameter index: The element index.
+    /// - Returns: The value, or `nil` if the content isn't an array or the index is out of bounds.
+    @inlinable
+    @inline(__always)
+    func element(at index: Int) -> GeneratedContent? {
+        guard case let .array(elements) = self, elements.indices.contains(index)
+        else { return nil }
+        return elements[index]
+    }
+}
+
+public extension GeneratedContent {
+    /// The associated object, or `nil` when this value has another kind.
+    var object: Object? {
+        guard case let .object(value) = self else { return nil }
+        return value
+    }
 
     /// Returns an object property by name.
     ///
