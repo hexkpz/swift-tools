@@ -5,7 +5,7 @@ import PackageDescription
 import CompilerPluginSupport
 
 let package = Package(
-    name: "Tools",
+    name: "swift-tools",
     platforms: [
         .macOS(.v15),
         .iOS(.v18),
