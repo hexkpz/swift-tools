@@ -89,6 +89,52 @@ public extension GeneratedContent {
     }
 }
 
+// MARK: Equatable
+
+extension GeneratedContent: Equatable {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case (.null, .null): true
+        case let (.boolean(lhs), .boolean(rhs)): lhs == rhs
+        case let (.integer(lhs), .integer(rhs)): AnyHashable(lhs) == AnyHashable(rhs)
+        case let (.number(lhs), .number(rhs)): lhs == rhs
+        case let (.string(lhs), .string(rhs)): lhs == rhs
+        case let (.array(lhs), .array(rhs)): lhs == rhs
+        case let (.object(lhs), .object(rhs)): lhs == rhs
+        default: false
+        }
+    }
+}
+
+// MARK: Hashable
+
+extension GeneratedContent: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .null:
+            hasher.combine(0)
+        case let .boolean(value):
+            hasher.combine(1)
+            hasher.combine(value)
+        case let .integer(value):
+            hasher.combine(2)
+            hasher.combine(AnyHashable(value))
+        case let .number(value):
+            hasher.combine(3)
+            hasher.combine(value)
+        case let .string(value):
+            hasher.combine(4)
+            hasher.combine(value)
+        case let .array(values):
+            hasher.combine(5)
+            hasher.combine(values)
+        case let .object(object):
+            hasher.combine(6)
+            hasher.combine(object)
+        }
+    }
+}
+
 // MARK: CustomDebugStringConvertible
 
 extension GeneratedContent: CustomDebugStringConvertible {
@@ -150,6 +196,22 @@ public extension GeneratedContent {
 
         @usableFromInline
         let properties: [Property]
+    }
+}
+
+// MARK: - GeneratedContent.Object + Equatable
+
+extension GeneratedContent.Object: Equatable {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.properties == rhs.properties
+    }
+}
+
+// MARK: - GeneratedContent.Object + Hashable
+
+extension GeneratedContent.Object: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(properties)
     }
 }
 
@@ -239,6 +301,19 @@ public extension GeneratedContent {
 
         /// The property value.
         public let value: GeneratedContent
+    }
+}
+
+// MARK: - GeneratedContent.Property + Equatable
+
+extension GeneratedContent.Property: Equatable {}
+
+// MARK: - GeneratedContent.Property + Hashable
+
+extension GeneratedContent.Property: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(value)
     }
 }
 

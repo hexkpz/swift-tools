@@ -72,7 +72,6 @@ func `invalid schemas fail during construction`() throws {
     }
 }
 
-#if canImport(FoundationEssentials) || canImport(Foundation)
 @Test
 func `structure schemas are canonical across property construction order`() throws {
     let integer = try GenerationSchema.integer()
@@ -89,6 +88,17 @@ func `structure schemas are canonical across property construction order`() thro
 
     #expect(first == second)
     #expect(first.hashValue == second.hashValue)
+
+    #if canImport(FoundationEssentials) || canImport(Foundation)
     #expect(first.description == second.description)
+    #endif
 }
-#endif
+
+@Test
+func `local validators do not affect schema identity`() throws {
+    let schema = try GenerationSchema.string()
+    let validated = try schema.validating(NonemptyIdentifierValidator())
+
+    #expect(schema == validated)
+    #expect(schema.hashValue == validated.hashValue)
+}

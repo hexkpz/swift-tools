@@ -315,29 +315,27 @@ public extension GenerationSchema {
     }
 }
 
-#if canImport(FoundationEssentials) || canImport(Foundation)
-
-private extension GenerationSchema {
-    var canonicalRepresentation: Data {
-        (try? generatedContent.data()) ?? Data(description.utf8)
-    }
-}
-
-extension GenerationSchema: CustomStringConvertible {}
+// MARK: - GenerationSchema + Equatable
 
 extension GenerationSchema: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        // Local validators aren't part of the canonical JSON representation.
-        lhs.canonicalRepresentation == rhs.canonicalRepresentation
+        lhs.generatedContent == rhs.generatedContent
     }
 }
 
+// MARK: - GenerationSchema + Hashable
+
 extension GenerationSchema: Hashable {
     public func hash(into hasher: inout Hasher) {
-        // Keep hashing consistent with equality by excluding local validators.
-        hasher.combine(canonicalRepresentation)
+        hasher.combine(generatedContent)
     }
 }
+
+// MARK: CustomStringConvertible
+
+#if canImport(FoundationEssentials) || canImport(Foundation)
+
+extension GenerationSchema: CustomStringConvertible {}
 
 #endif
 

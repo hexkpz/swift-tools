@@ -86,6 +86,20 @@ func `object lookup handles boundaries`(_ property: String, _ expected: Int?) {
 }
 
 @Test
+func `hashing follows canonical generated content equality`() {
+    let signed = GeneratedContent.integer(Int8(1))
+    let unsigned = GeneratedContent.integer(UInt64(1))
+
+    #expect(signed == unsigned)
+    #expect(Set([signed, unsigned]).count == 1)
+
+    let first = GeneratedContent(properties: [("z", .integer(1)), ("a", .boolean(true))])
+    let second = GeneratedContent(properties: [("a", .boolean(true)), ("z", .integer(1))])
+    #expect(first == second)
+    #expect(first.hashValue == second.hashValue)
+}
+
+@Test
 func `dictionary schemas and JSON encoding reject duplicate properties`() throws {
     let content = GeneratedContent.object([
         .init("value", .integer(1)),
