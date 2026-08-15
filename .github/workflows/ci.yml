@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [macos-15, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v3
+        with:
+          swift-version: "6.3"
+      - name: Debug tests
+        run: swift test -Xswiftc -warnings-as-errors
+      - name: Release tests
+        run: swift test -c release -Xswiftc -warnings-as-errors
+      - name: AddressSanitizer
+        if: matrix.os == 'macos-15'
+        run: swift test --sanitize=address --no-parallel -Xswiftc -warnings-as-errors
+      - name: ThreadSanitizer
+        if: matrix.os == 'macos-15'
+        run: swift test --sanitize=thread -Xswiftc -warnings-as-errors
+
+  apple-platforms:
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    strategy:
+      fail-fast: false
+      matrix:
+        destination:
+          - generic/platform=iOS
+          - generic/platform=macOS,variant=Mac Catalyst
+          - generic/platform=tvOS
+          - generic/platform=watchOS
+          - generic/platform=visionOS
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode version
+        run: xcodebuild -version
+      - name: Build Tools
+        run: >-
+          xcodebuild
+          -scheme Tools
+          -destination '${{ matrix.destination }}'
+          build
+          CODE_SIGNING_ALLOWED=NO

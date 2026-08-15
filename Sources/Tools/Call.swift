@@ -1,0 +1,128 @@
+//
+//  Created by Anton Spivak
+//
+
+import Generable
+
+// MARK: - Call
+
+/// A request to call a tool.
+public struct Call: Sendable {
+    // MARK: Lifecycle
+
+    /// Creates a tool call.
+    ///
+    /// - Parameters:
+    ///   - id: An optional identifier for matching the result.
+    ///   - name: The tool name.
+    ///   - arguments: The tool arguments.
+    public init(
+        id: String? = nil,
+        named name: String,
+        with arguments: GeneratedContent,
+    ) {
+        self.id = id
+        self.name = name
+        self.arguments = arguments
+    }
+
+    // MARK: Public
+
+    /// An optional identifier for matching the result.
+    public let id: String?
+
+    /// The tool name.
+    public let name: String
+
+    /// The tool arguments.
+    public let arguments: GeneratedContent
+}
+
+// MARK: Call.Result
+
+public extension Call {
+    /// The result of a tool call.
+    struct Result: Sendable {
+        // MARK: Lifecycle
+
+        init(
+            call: Call,
+            output: Swift.Result<GeneratedContent, any Swift.Error>,
+        ) {
+            self.call = call
+            self.output = output
+        }
+
+        // MARK: Public
+
+        /// The original call.
+        public let call: Call
+
+        /// The output or error.
+        public let output: Swift.Result<GeneratedContent, any Swift.Error>
+
+        /// The call identifier.
+        public var id: String? { call.id }
+
+        /// The tool name.
+        public var name: String { call.name }
+    }
+}
+
+// MARK: CustomStringConvertible
+
+extension Call: CustomStringConvertible {
+    public var description: String {
+        "\(id ?? "nil") -> \(name)(\(arguments.description))"
+    }
+}
+
+// MARK: CustomDebugStringConvertible
+
+extension Call: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        """
+        Call(
+          id: \(String(reflecting: id)),
+          name: \(String(reflecting: name)),
+          arguments: \(arguments.description)
+        )
+        """
+    }
+}
+
+// MARK: - Call.Result + CustomStringConvertible
+
+extension Call.Result: CustomStringConvertible {
+    public var description: String {
+        "\(id ?? "nil") <- \(name)(\(outputDescription))"
+    }
+
+    private var outputDescription: String {
+        switch output {
+        case let .success(output): output.description
+        case let .failure(error): "error: \(String(describing: error))"
+        }
+    }
+}
+
+// MARK: - Call.Result + CustomDebugStringConvertible
+
+extension Call.Result: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        """
+        Call.Result(
+          id: \(String(reflecting: id)),
+          name: \(String(reflecting: name)),
+          output: \(outputDebugDescription)
+        )
+        """
+    }
+
+    private var outputDebugDescription: String {
+        switch output {
+        case let .success(output): ".success(\(String(reflecting: output)))"
+        case let .failure(error): ".failure(\(String(reflecting: error)))"
+        }
+    }
+}

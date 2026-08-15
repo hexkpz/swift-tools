@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "52F0E75B-6D95-497F-BE00-2404C0329895",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ToolsTests",
+        "name" : "ToolsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "0495D663-E6A6-4222-894C-1BAC46B829D8",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "GenerableTests",
+        "name" : "GenerableTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "GenerableMacrosTests",
+        "name" : "GenerableMacrosTests"
+      }
+    }
+  ],
+  "version" : 1
+}

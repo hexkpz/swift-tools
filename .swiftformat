@@ -1,0 +1,109 @@
+--acronyms ID,URL,UUID
+--allman false
+--anonymousforeach convert
+--assetliterals visual-width
+--asynccapturing
+--beforemarks true
+--binarygrouping 4,8
+--callsiteparen default
+--categorymark "MARK: %c"
+--classthreshold 0
+--closingparen balanced
+--closurevoid remove
+--commas always
+--complexattrs preserve
+--computedvarattrs same-line
+--condassignment after-property
+--conflictmarkers reject
+--dateformat system
+--decimalgrouping 3,6
+--doccomments before-declarations
+--elseposition same-line
+--emptybraces no-space
+--enumnamespaces always
+--enumthreshold 0
+--exponentcase lowercase
+--exponentgrouping disabled
+--extensionacl on-extension
+--extensionlength 0
+--extensionmark "MARK: - %t + %c"
+--fractiongrouping disabled
+--fragment false
+--funcattributes prev-line
+--generictypes
+--groupblanklines true
+--groupedextension "MARK: %c"
+--guardelse auto
+--header "//\n//  Created by Anton Spivak \n//"
+--hexgrouping 4,8
+--hexliteralcase uppercase
+--ifdef no-indent
+--importgrouping alpha
+--indent 4
+--indentcase false
+--indentstrings false
+--inferredtypes always
+--initcodernil false
+--inlinedforeach ignore
+--lifecycle
+--lineaftermarks true
+--linebreaks lf
+--markcategories true
+--markextensions always
+--marktypes always
+--maxwidth 100
+--modifierorder
+--nevertrailing
+--nilinit remove
+--noncomplexattrs
+--nospaceoperators
+--nowrapoperators
+--octalgrouping 4,8
+--operatorfunc spaced
+--organizationmode visibility
+--organizetypes actor,class,enum,struct
+--patternlet hoist
+--preservedecls
+--preservedsymbols Package
+--propertytypes infer-locals-only
+--ranges spaced
+--self init-only
+--selfrequired
+--semicolons inline
+--shortoptionals always
+--smarttabs enabled
+--someany true
+--sortedpatterns
+--storedvarattrs preserve
+--stripunusedargs always
+--structthreshold 0
+--swift-version 6.3.3
+--tabwidth unspecified
+--throwcapturing
+--timezone system
+--trailingclosures
+--trimwhitespace always
+--typeattributes prev-line
+--typeblanklines remove
+--typedelimiter space-after
+--typemark "MARK: - %t"
+--typemarks
+--typeorder
+--varattributes prev-line
+--visibilitymarks
+--visibilityorder
+--voidtype void
+--wraparguments before-first
+--wrapcollections before-first
+--wrapconditions preserve
+--wrapeffects preserve
+--wrapenumcases always
+--wrapparameters before-first
+--wrapreturntype preserve
+--wrapternary default
+--wraptypealiases preserve
+--xcodeindentation disabled
+--yodaswap always
+--disable applicationMain,blankLineAfterImports,blankLinesBetweenChainedFunctions,conditionalAssignment,genericExtensions,headerFileName,linebreaks,modifierOrder,opaqueGenericParameters,redundantBreak,redundantClosure,redundantLet,redundantLetError,redundantObjc,sortDeclarations,sortImports,sortTypealiases,strongOutlets,trailingClosures,unusedArguments,wrapGuardStatementBodies,wrapIfExpressionBodies,wrapIfStatementBodies,wrapPropertyBodies,wrapSingleLineComments,yodaConditions
+--enable acronyms,blockComments,isEmpty,markTypes,organizeDeclarations,wrapEnumCases
+--exclude .build,DerivedData
