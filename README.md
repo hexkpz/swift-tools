@@ -25,6 +25,7 @@ their JSON schemas. Together, the modules provide tool declarations, calls, resu
   - [Guides](#guides)
   - [Manual Schemas](#manual-schemas)
 - [Requirements](#requirements)
+- [License](#license)
 - [Author](#author)
 
 ## Installation
@@ -313,6 +314,10 @@ The schema's `generatedContent` property contains its canonical JSON Schema repr
 - visionOS 2+
 - Android 9+ (API 28+)
 - Linux
+
+## License
+
+This package is available under the [MIT License](LICENSE).
 
 ## Author
 
