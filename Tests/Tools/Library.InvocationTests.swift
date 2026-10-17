@@ -167,9 +167,10 @@ func `model-facing failures are isolated from successful calls`() async throws {
     #expect(unknown.message.contains("Unknown tool"))
     #expect(invalid.message.contains("Invalid arguments"))
     #expect(failure.message == "Try another value.")
+    #expect(try results[3].output.get().value as? String == "before value")
     #expect(try generatedContentDecoder.decode(
         String.self,
-        from: results[3].output.get(),
+        from: results[3].output.get().content,
     ) == "before value")
 }
 
@@ -219,7 +220,7 @@ func `invocations reuse their declared schemas`() async throws {
     #expect(SchemaAccesses.value == (arguments: 1, output: 1))
     #expect(results.count == 2)
     for result in results {
-        guard case .string = try result.output.get() else {
+        guard case .string = try result.output.get().content else {
             Issue.record("Expected a string output.")
             continue
         }

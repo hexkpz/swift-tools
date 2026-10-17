@@ -23,7 +23,7 @@ import Synchronization
 /// ))
 ///
 /// let decoder = GeneratedContentDecoder()
-/// let greeting = try decoder.decode(String.self, from: result.output.get())
+/// let greeting = try decoder.decode(String.self, from: result.output.get().content)
 /// ```
 public struct Library<Context: Sendable>: Sendable {
     // MARK: Lifecycle
@@ -153,7 +153,7 @@ public extension Library {
     /// - Returns: The result of the call.
     func perform(_ call: Call, in context: Context) async -> Call.Result {
         do {
-            let output: GeneratedContent = try await perform(call, in: context)
+            let output: Call.Result.Output = try await perform(call, in: context)
             return Call.Result(call: call, output: .success(output))
         } catch {
             return Call.Result(call: call, output: .failure(error))
@@ -217,7 +217,10 @@ public extension Library {
         }
     }
 
-    private func perform(_ call: Call, in context: Context) async throws -> GeneratedContent {
+    private func perform(
+        _ call: Call,
+        in context: Context,
+    ) async throws -> Call.Result.Output {
         try Task.checkCancellation()
 
         let tool = storage { $0.tools[call.name] }
@@ -241,7 +244,7 @@ public extension Library {
         do {
             let output = try await tool.perform(with: call.arguments, in: context)
             let duration = duration(from: startedAt, to: clock.now)
-            emit(.succeeded(invocation, output: output, duration: duration))
+            emit(.succeeded(invocation, output: output.content, duration: duration))
             return output
         } catch {
             let duration = duration(from: startedAt, to: clock.now)

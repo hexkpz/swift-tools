@@ -59,7 +59,7 @@ struct AnyTool<Context: Sendable>: Sendable {
                 let encoder = GeneratedContentEncoder()
                 let schema = declaration.output
 
-                return try encoder.encode(output, using: schema)
+                return try (value: output, content: encoder.encode(output, using: schema))
             } catch let error as CancellationError {
                 throw error
             } catch {
@@ -78,11 +78,11 @@ struct AnyTool<Context: Sendable>: Sendable {
     func perform(
         with arguments: GeneratedContent,
         in context: Context,
-    ) async throws -> GeneratedContent {
+    ) async throws -> Call.Result.Output {
         try await _perform(arguments, context)
     }
 
     // MARK: Private
 
-    private let _perform: @Sendable (GeneratedContent, Context) async throws -> GeneratedContent
+    private let _perform: @Sendable (GeneratedContent, Context) async throws -> Call.Result.Output
 }

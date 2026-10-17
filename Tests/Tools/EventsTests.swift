@@ -151,7 +151,7 @@ func `cancelling an observer doesn't cancel tool execution`() async throws {
     )
     #expect(try generatedContentDecoder.decode(
         String.self,
-        from: results[0].output.get(),
+        from: results[0].output.get().content,
     ) == "before value")
 }
 

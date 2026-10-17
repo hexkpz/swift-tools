@@ -109,7 +109,7 @@ let result = await library.perform(
 )
 
 let decoder = GeneratedContentDecoder()
-let greeting = try decoder.decode(String.self, from: result.output.get())
+let greeting = try decoder.decode(String.self, from: result.output.get().content)
 print(greeting) // Hello, Ada!
 ```
 
@@ -181,9 +181,11 @@ let results = try await library.perform(
 )
 ```
 
-Each call stores its output or error in `Call.Result.output`. A `CancellationError` thrown by a tool
-is recorded for that call while the remaining calls continue. Cancelling the task awaiting
-`Library.perform` stops the whole batch and makes `Library.perform` throw `CancellationError`.
+`Call.Result.output` stores the Swift `value` and encoded `content`, or an error.
+
+A `CancellationError` thrown by a tool is recorded for that call while the remaining calls
+continue. Cancelling the task awaiting `Library.perform` stops the whole batch and makes
+`Library.perform` throw `CancellationError`.
 
 ### Events and Logging
 

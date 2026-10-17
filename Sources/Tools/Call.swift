@@ -47,7 +47,7 @@ public extension Call {
 
         init(
             call: Call,
-            output: Swift.Result<GeneratedContent, any Swift.Error>,
+            output: Swift.Result<Output, any Swift.Error>,
         ) {
             self.call = call
             self.output = output
@@ -55,11 +55,14 @@ public extension Call {
 
         // MARK: Public
 
+        /// Preserves ignored properties on the Swift value.
+        public typealias Output = (value: any Generable, content: GeneratedContent)
+
         /// The original call.
         public let call: Call
 
         /// The output or error.
-        public let output: Swift.Result<GeneratedContent, any Swift.Error>
+        public let output: Swift.Result<Output, any Swift.Error>
 
         /// The call identifier.
         public var id: String? { call.id }
@@ -100,7 +103,7 @@ extension Call.Result: CustomStringConvertible {
 
     private var outputDescription: String {
         switch output {
-        case let .success(output): output.description
+        case let .success(output): output.content.description
         case let .failure(error): "error: \(String(describing: error))"
         }
     }
@@ -121,7 +124,7 @@ extension Call.Result: CustomDebugStringConvertible {
 
     private var outputDebugDescription: String {
         switch output {
-        case let .success(output): ".success(\(String(reflecting: output)))"
+        case let .success(output): ".success(\(String(reflecting: output.content)))"
         case let .failure(error): ".failure(\(String(reflecting: error)))"
         }
     }

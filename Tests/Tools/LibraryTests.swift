@@ -124,11 +124,11 @@ func `library dispatches calls with their shared context`() async throws {
     #expect(results.map(\.id) == ["first", "second"])
     #expect(try generatedContentDecoder.decode(
         String.self,
-        from: results[0].output.get(),
+        from: results[0].output.get().content,
     ) == "before value")
     #expect(try generatedContentDecoder.decode(
         String.self,
-        from: results[1].output.get(),
+        from: results[1].output.get().content,
     ) == "value after")
 }
 
@@ -145,7 +145,7 @@ func `library performs a single call with its shared context`() async throws {
     #expect(result.id == "single")
     #expect(try generatedContentDecoder.decode(
         String.self,
-        from: result.output.get(),
+        from: result.output.get().content,
     ) == "before value")
 }
 
@@ -160,7 +160,7 @@ func `void library performs calls without an explicit context`() async throws {
 
     #expect(try generatedContentDecoder.decode(
         String.self,
-        from: results[0].output.get(),
+        from: results[0].output.get().content,
     ) == "hello")
 }
 
@@ -176,6 +176,6 @@ func `void library performs a single call without an explicit context`() async t
     #expect(result.id == "single")
     #expect(try generatedContentDecoder.decode(
         String.self,
-        from: result.output.get(),
+        from: result.output.get().content,
     ) == "hello")
 }
