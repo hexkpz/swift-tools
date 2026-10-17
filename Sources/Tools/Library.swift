@@ -151,12 +151,12 @@ public extension Library {
     ///   - call: The call to run.
     ///   - context: The context passed to the tool.
     /// - Returns: The result of the call.
-    func perform(_ call: Call, in context: Context) async -> Call.Result {
+    func perform(_ call: consuming Call, in context: Context) async -> Call.Result {
         do {
             let output: Call.Result.Output = try await perform(call, in: context)
-            return Call.Result(call: call, output: .success(output))
+            return Call.Result(call: consume call, output: .success(output))
         } catch {
-            return Call.Result(call: call, output: .failure(error))
+            return Call.Result(call: consume call, output: .failure(error))
         }
     }
 
@@ -218,7 +218,7 @@ public extension Library {
     }
 
     private func perform(
-        _ call: Call,
+        _ call: borrowing Call,
         in context: Context,
     ) async throws -> Call.Result.Output {
         try Task.checkCancellation()
@@ -232,7 +232,7 @@ public extension Library {
         }
 
         let invocation = Events.Invocation(
-            call: call,
+            call: copy call,
             tool: tool.declaration,
         )
 
@@ -259,8 +259,8 @@ public extension Library where Context == Void {
     ///
     /// - Parameter call: The call to run.
     /// - Returns: The result of the call.
-    func perform(_ call: Call) async -> Call.Result {
-        await perform(call, in: ())
+    func perform(_ call: consuming Call) async -> Call.Result {
+        await perform(consume call, in: ())
     }
 
     /// Runs context-free tool calls concurrently.

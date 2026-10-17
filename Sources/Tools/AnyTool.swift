@@ -28,13 +28,16 @@ struct AnyTool<Context: Sendable>: Sendable {
 
         self.declaration = declaration
 
-        self._perform = {
+        self._perform = { content, context in
             let arguments: ToolType.Arguments
             do {
                 let decoder = GeneratedContentDecoder()
                 let schema = declaration.arguments
-
-                arguments = try decoder.decode(ToolType.Arguments.self, from: $0, using: schema)
+                arguments = try decoder.decode(
+                    ToolType.Arguments.self,
+                    from: consume content,
+                    using: schema,
+                )
             } catch let error as CancellationError {
                 throw error
             } catch {
@@ -47,7 +50,7 @@ struct AnyTool<Context: Sendable>: Sendable {
             try Task.checkCancellation()
             let output: ToolType.Output
             do {
-                output = try await tool.perform(with: arguments, in: $1)
+                output = try await tool.perform(with: arguments, in: context)
             } catch {
                 // Prefer cancellation when the task was canceled while the tool was running.
                 try Task.checkCancellation()
@@ -59,7 +62,8 @@ struct AnyTool<Context: Sendable>: Sendable {
                 let encoder = GeneratedContentEncoder()
                 let schema = declaration.output
 
-                return try (value: output, content: encoder.encode(output, using: schema))
+                let content = try encoder.encode(output, using: schema)
+                return (value: consume output, content: consume content)
             } catch let error as CancellationError {
                 throw error
             } catch {
@@ -76,13 +80,16 @@ struct AnyTool<Context: Sendable>: Sendable {
 
     @inline(__always)
     func perform(
-        with arguments: GeneratedContent,
+        with arguments: consuming GeneratedContent,
         in context: Context,
     ) async throws -> Call.Result.Output {
-        try await _perform(arguments, context)
+        try await _perform(consume arguments, context)
     }
 
     // MARK: Private
 
-    private let _perform: @Sendable (GeneratedContent, Context) async throws -> Call.Result.Output
+    private let _perform: @Sendable (
+        consuming GeneratedContent,
+        Context,
+    ) async throws -> Call.Result.Output
 }

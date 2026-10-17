@@ -25,7 +25,7 @@ public struct GeneratedContentEncoder: Sendable {
     ///
     /// - Parameter value: The value to encode.
     /// - Returns: The encoded content.
-    public func encode<Value: Generable>(_ value: Value) throws -> GeneratedContent {
+    public func encode<Value: Generable>(_ value: borrowing Value) throws -> GeneratedContent {
         try encode(value, using: Value.generationSchema)
     }
 
@@ -39,8 +39,8 @@ public struct GeneratedContentEncoder: Sendable {
     ///   - schema: The schema used to encode and validate the value.
     /// - Returns: The encoded content.
     public func encode<Value: Generable>(
-        _ value: Value,
-        using schema: GenerationSchema,
+        _ value: borrowing Value,
+        using schema: borrowing GenerationSchema,
     ) throws -> GeneratedContent {
         var encoder = try GenerationEncoder(
             node: schema.graph.root.node,

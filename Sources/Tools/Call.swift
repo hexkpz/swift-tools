@@ -19,11 +19,11 @@ public struct Call: Sendable {
     public init(
         id: String? = nil,
         named name: String,
-        with arguments: GeneratedContent,
+        with arguments: consuming GeneratedContent,
     ) {
         self.id = id
         self.name = name
-        self.arguments = arguments
+        self.arguments = consume arguments
     }
 
     // MARK: Public
@@ -46,11 +46,11 @@ public extension Call {
         // MARK: Lifecycle
 
         init(
-            call: Call,
-            output: Swift.Result<Output, any Swift.Error>,
+            call: consuming Call,
+            output: consuming Swift.Result<Output, any Swift.Error>,
         ) {
-            self.call = call
-            self.output = output
+            self.call = consume call
+            self.output = consume output
         }
 
         // MARK: Public
